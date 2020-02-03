@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculator</title>
+
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="calculator">
+        <div class="input">
+            {{ display }}
+        </div>
+        <div class="buttons">
+            <div class="button button-number" v-on:click="addNumber(7)">7</div>
+            <div class="button button-number" v-on:click="addNumber(8)">8</div>
+            <div class="button button-number" v-on:click="addNumber(9)">9</div>
+
+            <div class="button button-operator" v-on:click="setOperator('/')">/</div>
+
+            <div class="button button-number" v-on:click="addNumber(4)">4</div>
+            <div class="button button-number" v-on:click="addNumber(5)">5</div>
+            <div class="button button-number" v-on:click="addNumber(6)">6</div>
+
+            <div class="button button-operator" v-on:click="setOperator('*')">*</div>
+
+            <div class="button button-number" v-on:click="addNumber(1)">1</div>
+            <div class="button button-number" v-on:click="addNumber(2)">2</div>
+            <div class="button button-number" v-on:click="addNumber(3)">3</div>
+
+            <div class="button button-operator" v-on:click="setOperator('-')">-</div>
+
+            <div class="button button-number" v-on:click="clear">C</div>
+            <div class="button button-number" v-on:click="addNumber(0)">0</div>
+            <div class="button button-equals" v-on:click="calculate">=</div>
+
+            <div class="button button-operator" v-on:click="setOperator('+')">+</div>
+        </div>
+
+        <pre>{{ $data | json }}</pre>
+    </div>
+
+    <script src="vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#calculator',
+            data: {
+                firstOperand: '0',
+                secondOperand: '',
+                operator: null,
+                result: null,
+            },
+            methods: {
+                setOperator: function (operator) {
+                    if (this.operator !== null && this.secondOperand !== '') {
+                        this.calculate();
+                    }
+
+                    this.result = null;
+                    this.operator = operator;
+                },
+
+                addNumber: function (number) {
+                    this.result = null;
+
+                    if (this.operator === null) {
+                        this.firstOperand = this.firstOperand === '0' ? number.toString() : this.firstOperand + number;
+                    } else {
+                        this.secondOperand = this.secondOperand === '0' ? number.toString() : this.secondOperand + number;
+                    }
+                },
+
+                calculate: function (operator) {
+                    if (this.secondOperand === '') {
+                        if (this.operator === null) {
+                            return;
+                        }
+
+                        this.result = 'Error';
+                        this.firstOperand = '';
+                        this.secondOperand = '';
+                        this.operator = null;
+
+                        return;
+                    }
+
+                    var firstNumber = Number(this.firstOperand);
+                    var secondNumber = Number(this.secondOperand);
+
+                    switch (this.operator) {
+                        case '+':
+                            var result = firstNumber + secondNumber;
+                            break;
+                        case '-':
+                            var result = firstNumber - secondNumber;
+                            break;
+                        case '*':
+                            var result = firstNumber * secondNumber;
+                            break;
+                        case '/':
+                            if (secondNumber === 0) {
+                                this.result = 'Error';
+                                this.firstOperand = '0';
+                                this.secondOperand = '';
+                                this.operator = null;
+
+                                return;
+                            }
+
+                            var result = firstNumber / secondNumber;
+                            break;
+                    }
+
+                    this.result = result.toString();
+                    this.firstOperand = result.toString();
+                    this.secondOperand = '';
+                    this.operator = null;
+                },
+
+                clear: function (operator) {
+                    this.firstOperand = '0';
+                    this.secondOperand = '';
+                    this.operator = null;
+                    this.result = null;
+                },
+            },
+            computed: {
+                display : function () {
+                    if (this.result !== null) {
+                        return this.result;
+                    }
+
+                    var result = this.firstOperand;
+
+                    result += this.operator === null ? '' : ' ' + this.operator;
+                    result += this.secondOperand === '' ? '' : ' ' + this.secondOperand;
+
+                    return result;
+                },
+            }
+        });
+    </script>
+</body>
+</html>
